@@ -50,10 +50,10 @@ function check (given: any, expected: Matcher[] | any) : boolean {
       if ('lt' in test) return given < test.lt
       // @ts-ignore is possibly 'undefined'
       if ('lte' in test) return given <= test.lte
-      if ('in' in test) return given.includes(test.in)
-      if ('nin' in test) return !given.includes(test.nin)
+      if ('in' in test) return given != null && typeof given.includes === 'function' ? given.includes(test.in) : false
+      if ('nin' in test) return given != null && typeof given.includes === 'function' ? !given.includes(test.nin) : true
       // @ts-ignore is possibly 'undefined'
-      if ('match' in test) return new RegExp(test.match).test(given)
+      if ('match' in test) return given != null ? new RegExp(test.match).test(given) : false
       if ('isNumber' in test) return test.isNumber ? typeof given === 'number' : typeof given !== 'number'
       if ('isString' in test) return test.isString ? typeof given === 'string' : typeof given !== 'string'
       if ('isBoolean' in test) return test.isBoolean ? typeof given === 'boolean' : typeof given !== 'boolean'

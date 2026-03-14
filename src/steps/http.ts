@@ -530,21 +530,32 @@ export default async function (
     // Check JSONPath
     if (params.check.jsonpath) {
       stepResult.checks.jsonpath = {}
+      let json: any
       try {
-        const json = JSON.parse(body)
-        for (const path in params.check.jsonpath) {
-          const result = JSONPath({ path, json, wrap: false })
-          stepResult.checks.jsonpath[path] = checkResult(
-            result,
-            params.check.jsonpath[path]
-          )
-        }
+        json = JSON.parse(body)
       } catch {
         for (const path in params.check.jsonpath) {
           stepResult.checks.jsonpath[path] = {
             expected: params.check.jsonpath[path],
             given: body,
             passed: false,
+          }
+        }
+      }
+      if (json !== undefined) {
+        for (const path in params.check.jsonpath) {
+          try {
+            const result = JSONPath({ path, json, wrap: false })
+            stepResult.checks.jsonpath[path] = checkResult(
+              result,
+              params.check.jsonpath[path]
+            )
+          } catch {
+            stepResult.checks.jsonpath[path] = {
+              expected: params.check.jsonpath[path],
+              given: body,
+              passed: false,
+            }
           }
         }
       }
